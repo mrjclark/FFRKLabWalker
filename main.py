@@ -142,20 +142,24 @@ def battleclick2():
 
 def masterclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
-    time.sleep(3)
+    while pag.locateOnScreen('./Images/Enter.png',confidence=confidence) is None:
+        time.sleep(1)
     clickenter()
-    time.sleep(3)
     battleclick2()
     return
 
 def restonclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
+    while pag.locateOnScreen('./Images/MoveOn.png',confidence=confidence) is None:
+        time.sleep(1)
     clickmoveon()
     return
 
 def portalclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
     time.sleep(2)
+    while pag.locateOnScreen('./Images/OK.png',confidence=confidence) is None:
+        time.sleep(1)
     clickok()
     while pag.locateOnScreen('./Images/Frame.png',confidence=confidence) is None:
         time.sleep(2)
