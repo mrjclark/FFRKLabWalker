@@ -11,7 +11,7 @@ debug3on = True #Debugging for button clicks
 pag.PAUSE = 2.5
 confidence = 0.9
 treasureconfidence = 0.8
-dungeondetailsconfidence=0.7
+dungeondetailsconfidence=0.65
 labenterconfidence=0.7
 clickinterval = 1
 imageDir = './Images/'
@@ -21,24 +21,40 @@ portal = imageDir + 'Portal.png'
 master = imageDir + 'Master.png'
 onslaught = imageDir + 'Onslaught.png'
 restoration = imageDir + 'Restoration.png'
-combatRed = imageDir + 'CombatRed.png'
-combatYellow = imageDir + 'CombatYellow.png'
-combatGreen = imageDir + 'CombatGreen.png'
+combatred = imageDir + 'combatred.png'
+combatyellow = imageDir + 'combatyellow.png'
+combatgreen = imageDir + 'combatgreen.png'
+combatshiny = imageDir + 'CombatShiny.png'
 
 #Set Priorities
 p1 = treasure
 p2 = exploration
-p3 = combatRed
+p3 = combatred
 p4 = onslaught
 p5 = restoration
 p6 = portal
 p7 = master
-p8 = combatYellow
-p9 = combatGreen
+p8 = combatyellow
+p9 = combatgreen
 pList = [p1,p2,p3,p4,p5,p6,p7,p8,p9]
 
 
 #Painting clicks
+
+class Painting:
+    def __init__(self, paintinglocation,paintingtype,paintingimage):
+        self.paintinglocation = paintinglocation #pyautogui box
+        self.painginttype = paintingtype #string in treasure,exploration, combatantred, combatantyellow
+                                            #, combatantgreen, onslaught, restoration, portal or master
+        self.paintingimage = paintingimage #string with file location
+
+class Button:
+    def __init__(self, buttonlocation,buttontype,buttonimage,buttonconfidence):
+        self.buttonlocation = buttonlocation #pyautogui box
+        self.buttontype = buttontype #string in close, dungeondetails, enter, go, labenter
+                                        #, moveone, next, ok, open, skip, usekey,yes
+        self.buttonimage = buttonimage #string with file location
+        self.buttonconfidence = buttonconfidence #float <= 1
 
 def treasureclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
@@ -68,7 +84,7 @@ def treasureclick2():
 
 def explorationclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
-    if debug2on: print('Exploratiopn painting found')
+    if debug2on: print('Exploration painting found')
     time.sleep(2)
     if pag.locateOnScreen('./Images/MoveOn.png',confidence=confidence) is not None:
         if debug2on: print('Found Move On')
@@ -101,23 +117,36 @@ def battleclick(box):
 
 def battleclick2():
     time.sleep(2)
-    while pag.locateOnScreen('./Images/DungeonDetails.png',confidence=confidence):
+    while pag.locateOnScreen('./Images/DungeonDetails.png',confidence=dungeondetailsconfidence):
         time.sleep(1)
+    if debug2on and pag.locateOnScreen('./Images/DungeonDetails.png',confidence=dungeondetailsconfidence) is not None:
+        print('Found Dungeon Details button')
     clickdungeondetails()
     party2 = False
     time.sleep(1)
     if pag.locateOnScreen('./Images/MagicPot.png',confidence=confidence) is not None:
         party2=True
+    if debug2on:
+        print('Using Lab Party 2: ' + str(party2))
     while pag.locateOnScreen('./Images/Close.png',confidence=confidence) is None:
         time.sleep(1)
+    if debug2on and pag.locateOnScreen('./Images/Close.png',confidence=confidence) is not None:
+        print('Found Close button')
     clickclose()
-    while pag.locateOnScreen('./Images/LabParty2.png',confidence=confidence) is None:
-        time.sleep(1)
+    time.sleep(3)
+    if debug2on and party2:
+        if pag.locateOnScreen('./Images/LabParty2.png',confidence=confidence) is not None:
+            print('Clicking lab party 2')
+        elif pag.locateOnScreen('./Images/LabParty2.png',confidence=confidence) is None:
+            print('Could not find lab party 2 to click')
     if party2:
         clicklabparty2()
+    if debug2on and pag.locateOnScreen('./Images/GO.png',confidence=confidence) is not None:
+        print('Found the GO button')
     clickgo()
     time.sleep(2)
     if pag.locateOnScreen('./Images/OK.png',confidence=confidence) is not None:
+        if debug2on: print('Found the OK button')
         clickok()
     while pag.locateOnScreen('./Images/SKIP.png',confidence=confidence) is None:
         if debug2on: print('Waiting for combat to finish')
@@ -128,8 +157,9 @@ def battleclick2():
         time.sleep(1)
     if debug2on: print('Clicking Next')
     clicknext()
-    #Master painting handling needs a close here
-    while pag.locateOnScreen('./Images/Frame.png',confidence=confidence) is None or pag.locateOnScreen('./Images/PortalFrame.png',confidence=confidence):
+    while pag.locateOnScreen('./Images/Frame.png',confidence=confidence) is None \
+            or pag.locateOnScreen('./Images/Portal.png',confidence=confidence) \
+            or pag.locateOnScreen('./Images/Master.png',confidence=confidence):
         if debug2on: print('Waiting for paintings to come up again')
         if pag.locateOnScreen('./Images/Close.png',confidence=confidence) is not None:
             clickclose()
@@ -142,14 +172,18 @@ def battleclick2():
 
 def masterclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
+    if debug2on: print('Master painting found')
     while pag.locateOnScreen('./Images/Enter.png',confidence=confidence) is None:
         time.sleep(1)
+    if debug2on: print('Found the Enter button')
     clickenter()
+    if debug2on: print('Starting battleclick2')
     battleclick2()
     return
 
 def restonclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
+    if debug2on: print('Restoration or Onslaught painting found')
     while pag.locateOnScreen('./Images/MoveOn.png',confidence=confidence) is None:
         time.sleep(1)
     clickmoveon()
@@ -248,7 +282,8 @@ def startlab():
 
 def main():
     if debug1on: print('Starting Main')
-    if pag.locateOnScreen('./Images/Lab3.png',confidence=labenterconfidence) or pag.locateOnScreen('./Images/OnLab3.png',confidence=labenterconfidence):
+    if pag.locateOnScreen('./Images/Lab3.png',confidence=labenterconfidence) \
+            or pag.locateOnScreen('./Images/OnLab3.png',confidence=labenterconfidence):
         if debug1on: print('Starting Lab3')
         startlab()
 
@@ -282,7 +317,7 @@ def main():
     if priority == onslaught or priority == restoration:
         if debugon: print('Starting Onslaught of Restoration Painting')
         restonclick(pag.locateOnScreen(priority, confidence=confidence))
-    if priority == combatRed or priority == combatYellow or priority == combatGreen:
+    if priority == combatred or priority == combatyellow or priority == combatgreen:
         if debugon: print('Starting Combatant Painting')
         battleclick(pag.locateOnScreen(priority, confidence=confidence))
     if priority == master:
