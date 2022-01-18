@@ -34,10 +34,10 @@ p2 = exploration
 p3 = combatred
 p4 = onslaught
 p5 = restoration
-p6 = portal
-p7 = master
-p8 = combatyellow
-p9 = combatgreen
+p6 = combatyellow
+p7 = combatgreen
+p8 = portal
+p9 = master
 pList = [p1,p2,p3,p4,p5,p6,p7,p8,p9]
 
 
@@ -102,7 +102,7 @@ def explorationclick(box):
         if debug2on: print('It was a battle screen')
         battleclick2()
         return
-    if pag.locateOnScreen('./Images/TreasureLeft.png',confidence=confidence) is not None:
+    if pag.locateOnScreen('./Images/TreasureLeft.png',confidence=treasureconfidence) is not None:
         if debug2on: print('It was a treasure screen')
         treasureclick2()
         return
@@ -110,8 +110,7 @@ def explorationclick(box):
 
 def battleclick(box):
     pag.click(pag.center(box),clicks=2,interval=clickinterval)
-    while pag.locateOnScreen('./Images/Enter.png',confidence=confidence) is None:
-        time.sleep(1)
+    waitforenter()
     if debug2on: print('Clicking Enter')
     clickenter()
     time.sleep(3)
@@ -129,13 +128,12 @@ def battleclick2():
             print('Found Dungeon Details button')
         clickdungeondetails()
         party2 = False
-        time.sleep(1)
+        waitforclose()
         if pag.locateOnScreen('./Images/MagicPot.png',confidence=confidence) is not None:
             party2=True
         if debug2on:
             print('Using Lab Party 2: ' + str(party2))
-        while pag.locateOnScreen('./Images/Close.png',confidence=confidence) is None:
-            time.sleep(1)
+        waitforclose()
         if debug2on and pag.locateOnScreen('./Images/Close.png',confidence=confidence) is not None:
             print('Found Close button')
         clickclose()
@@ -169,8 +167,7 @@ def battleclick2():
 def masterclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
     if debug2on: print('Master painting found')
-    while pag.locateOnScreen('./Images/Enter.png',confidence=confidence) is None:
-        time.sleep(1)
+    waitforenter()
     if debug2on: print('Found the Enter button')
     clickenter()
     if debug2on: print('Starting battleclick2')
@@ -180,8 +177,7 @@ def masterclick(box):
 def restonclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
     if debug2on: print('Restoration or Onslaught painting found')
-    while pag.locateOnScreen('./Images/MoveOn.png',confidence=confidence) is None:
-        time.sleep(1)
+    waitformoveon()
     clickmoveon()
     waitforpaintings()
     return
@@ -189,8 +185,7 @@ def restonclick(box):
 def portalclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
     time.sleep(2)
-    while pag.locateOnScreen('./Images/OK.png',confidence=confidence) is None:
-        time.sleep(1)
+    waitforok()
     clickok()
     waitforpaintings()
     return
@@ -214,7 +209,7 @@ def clickgo():
     return
 
 def clickenter():
-    pag.click(pag.locateOnScreen('./Images/Enter.png',confidence=confidence))
+    pag.click(pag.locateOnScreen('./Images/Enter.png',confidence=labenterconfidence))
     return
 
 def clicklabenter():
@@ -238,13 +233,13 @@ def clickok():
     return
 
 def clicktreasure():
-    if pag.locateAllOnScreen('./Images/TreasureLeft.png',confidence=treasureconfidence) is not None:
+    if pag.locateOnScreen('./Images/TreasureLeft.png',confidence=treasureconfidence) is not None:
         pag.click(pag.locateOnScreen('./Images/TreasureLeft.png', confidence=treasureconfidence))
         return
-    if pag.locateAllOnScreen('./Images/TreasureMid.png',confidence=treasureconfidence) is not None:
+    if pag.locateOnScreen('./Images/TreasureMid.png',confidence=treasureconfidence) is not None:
         pag.click(pag.locateOnScreen('./Images/TreasureMid.png', confidence=treasureconfidence))
         return
-    if pag.locateAllOnScreen('./Images/TreasureRight.png',confidence=treasureconfidence) is not None:
+    if pag.locateOnScreen('./Images/TreasureRight.png',confidence=treasureconfidence) is not None:
         pag.click(pag.locateOnScreen('./Images/TreasureRight.png', confidence=treasureconfidence))
         return
 
@@ -264,16 +259,11 @@ def clickyes():
 #Common waiting games
 def waitforpaintings():
     while pag.locateOnScreen('./Images/ChoosePainting.png',confidence=confidence) is None \
+            and pag.locateOnScreen('./Images/ChoosePaintingLastFloor.png',confidence=confidence) is None \
             and pag.locateOnScreen('./Images/Portal.png',confidence=confidence) is None \
             and pag.locateOnScreen('./Images/Master.png',confidence=confidence) is None:
         if debug2on:
             print('Waiting for paintings to come up again')
-            print('Choose painting location: ')
-            pag.locateOnScreen('./Images/ChoosePainting.png', confidence=confidence)
-            print('Portal Location: ')
-            pag.locateOnScreen('./Images/Portal.png', confidence=confidence)
-            print('Master location: ')
-            pag.locateOnScreen('./Images/Master.png', confidence=confidence)
         if pag.locateOnScreen('./Images/Close.png',confidence=confidence) is not None:
             clickclose()
             time.sleep(1)
@@ -282,25 +272,44 @@ def waitforpaintings():
             break
         time.sleep(2)
 
+def waitforclose():
+    while pag.locateOnScreen('./Images/Close.png', confidence=confidence) is None:
+        time.sleep(1)
+    return
+
+def waitforok():
+    while pag.locateOnScreen('./Images/OK.png', confidence=confidence) is None:
+        time.sleep(1)
+    return
+
+def waitforenter():
+    while pag.locateOnScreen('./Images/Enter.png', confidence=labenterconfidence) is None:
+        time.sleep(1)
+    return
+
+def waitformoveon():
+    while pag.locateOnScreen('./Images/MoveOn.png', confidence=confidence) is None:
+        time.sleep(1)
+    return
+
 #Starting Labs
 
 def startlab():
-
-    if debug3on and pag.locateOnScreen('./Images/Lab3.png',confidence=labenterconfidence) is not None:
-        print('Found Lab3')
-    pag.click(pag.locateOnScreen('./Images/Lab3.png', confidence=labenterconfidence))
-    pag.click(pag.locateOnScreen('./Images/OnLab3.png', confidence=labenterconfidence))
-    time.sleep(2)
+    if debug3on and pag.locateOnScreen('./Images/OnLab.png',confidence=labenterconfidence) is not None:
+        print('Found current labyrinth')
+    pag.click(pag.locateOnScreen('./Images/OnLab.png', confidence=labenterconfidence))
     if debug3on and pag.locateOnScreen('./Images/LabEnter.png',confidence=confidence) is not None:
         print('Found Lab Enter')
-    pag.click(pag.locateOnScreen('./Images/LabEnter.png',confidence=confidence))
-    time.sleep(2)
-    if debug3on and pag.locateOnScreen('./Images/Enter.png',confidence=confidence) is not None:
+    clicklabenter()
+    waitforenter()
+    if debug3on and pag.locateOnScreen('./Images/Enter.png',confidence=labenterconfidence) is not None:
         print('Found Enter')
-    pag.click(pag.locateOnScreen('./Images/Enter.png',confidence=confidence))
+    clickenter()
     time.sleep(2)
-    while pag.locateOnScreen('./Images/OK.png',confidence=confidence) is not None:
+    if pag.locateOnScreen('./Images/OK.png',confidence=confidence) is not None:
         clickok()
+    waitforok()
+    clickok()
     return
 
 
