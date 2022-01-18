@@ -14,6 +14,8 @@ treasureconfidence = 0.8
 dungeondetailsconfidence=0.65
 labenterconfidence=0.7
 clickinterval = 1
+useparty2 = True
+runonce = False
 imageDir = './Images/'
 treasure = imageDir + 'Treasure.png'
 exploration = imageDir + 'Exploration.png'
@@ -64,7 +66,9 @@ def treasureclick(box):
     return
 
 def treasureclick2():
-    while pag.locateOnScreen('./Images/TreasureChest.png',confidence=treasureconfidence) is not None:
+    while pag.locateOnScreen('./Images/TreasureLeft.png',confidence=treasureconfidence) is not None \
+            or pag.locateOnScreen('./Images/TreasureMid.png',confidence=treasureconfidence) is not None \
+            or pag.locateOnScreen('./Images/TreasureRight.png',confidence=treasureconfidence) is not None:
         if debug2on: print('Looking for closed treasure')
         time.sleep(2)
         if debug2on: print('Clicking on chest ')
@@ -93,12 +97,12 @@ def explorationclick(box):
     if pag.locateOnScreen('./Images/Yes.png',confidence=confidence) is not None:
         if debug2on: print('Door found, clicking yes')
         clickyes()
-        time.sleep(6)
-    if pag.locateOnScreen('./Images/DungeonDetails.png',confidence=dungeondetailsconfidence) is not None:
+    time.sleep(6)
+    if pag.locateOnScreen('./Images/ChooseParty.png',confidence=dungeondetailsconfidence) is not None:
         if debug2on: print('It was a battle screen')
         battleclick2()
         return
-    if pag.locateOnScreen('./Images/Treasure.png',confidence=confidence) is not None:
+    if pag.locateOnScreen('./Images/TreasureLeft.png',confidence=confidence) is not None:
         if debug2on: print('It was a treasure screen')
         treasureclick2()
         return
@@ -117,30 +121,32 @@ def battleclick(box):
 
 def battleclick2():
     time.sleep(2)
-    while pag.locateOnScreen('./Images/DungeonDetails.png',confidence=dungeondetailsconfidence):
+    if debug2on: print('Looking for Choose Party screen')
+    while pag.locateOnScreen('./Images/ChooseParty.png',confidence=dungeondetailsconfidence) is None:
         time.sleep(1)
-    if debug2on and pag.locateOnScreen('./Images/DungeonDetails.png',confidence=dungeondetailsconfidence) is not None:
-        print('Found Dungeon Details button')
-    clickdungeondetails()
-    party2 = False
-    time.sleep(1)
-    if pag.locateOnScreen('./Images/MagicPot.png',confidence=confidence) is not None:
-        party2=True
-    if debug2on:
-        print('Using Lab Party 2: ' + str(party2))
-    while pag.locateOnScreen('./Images/Close.png',confidence=confidence) is None:
+    if useparty2:
+        if debug2on and pag.locateOnScreen('./Images/DungeonDetails.png',confidence=dungeondetailsconfidence) is not None:
+            print('Found Dungeon Details button')
+        clickdungeondetails()
+        party2 = False
         time.sleep(1)
-    if debug2on and pag.locateOnScreen('./Images/Close.png',confidence=confidence) is not None:
-        print('Found Close button')
-    clickclose()
-    time.sleep(3)
-    if debug2on and party2:
-        if pag.locateOnScreen('./Images/LabParty2.png',confidence=confidence) is not None:
-            print('Clicking lab party 2')
-        elif pag.locateOnScreen('./Images/LabParty2.png',confidence=confidence) is None:
-            print('Could not find lab party 2 to click')
-    if party2:
-        clicklabparty2()
+        if pag.locateOnScreen('./Images/MagicPot.png',confidence=confidence) is not None:
+            party2=True
+        if debug2on:
+            print('Using Lab Party 2: ' + str(party2))
+        while pag.locateOnScreen('./Images/Close.png',confidence=confidence) is None:
+            time.sleep(1)
+        if debug2on and pag.locateOnScreen('./Images/Close.png',confidence=confidence) is not None:
+            print('Found Close button')
+        clickclose()
+        time.sleep(3)
+        if debug2on and party2:
+            if pag.locateOnScreen('./Images/LabParty2.png',confidence=confidence) is not None:
+                print('Clicking lab party 2')
+            elif pag.locateOnScreen('./Images/LabParty2.png',confidence=confidence) is None:
+                print('Could not find lab party 2 to click')
+        if party2:
+            clicklabparty2()
     if debug2on and pag.locateOnScreen('./Images/GO.png',confidence=confidence) is not None:
         print('Found the GO button')
     clickgo()
@@ -157,17 +163,7 @@ def battleclick2():
         time.sleep(1)
     if debug2on: print('Clicking Next')
     clicknext()
-    while pag.locateOnScreen('./Images/Frame.png',confidence=confidence) is None \
-            or pag.locateOnScreen('./Images/Portal.png',confidence=confidence) \
-            or pag.locateOnScreen('./Images/Master.png',confidence=confidence):
-        if debug2on: print('Waiting for paintings to come up again')
-        if pag.locateOnScreen('./Images/Close.png',confidence=confidence) is not None:
-            clickclose()
-            time.sleep(1)
-            if pag.locateOnScreen('./Images/Close.png', confidence=confidence) is not None:
-                clickclose()
-            break
-        time.sleep(2)
+    waitforpaintings()
     return
 
 def masterclick(box):
@@ -187,6 +183,7 @@ def restonclick(box):
     while pag.locateOnScreen('./Images/MoveOn.png',confidence=confidence) is None:
         time.sleep(1)
     clickmoveon()
+    waitforpaintings()
     return
 
 def portalclick(box):
@@ -195,9 +192,7 @@ def portalclick(box):
     while pag.locateOnScreen('./Images/OK.png',confidence=confidence) is None:
         time.sleep(1)
     clickok()
-    while pag.locateOnScreen('./Images/Frame.png',confidence=confidence) is None:
-        time.sleep(2)
-    time.sleep(2 )
+    waitforpaintings()
     return
 
 #Button clicks
@@ -243,8 +238,16 @@ def clickok():
     return
 
 def clicktreasure():
-    pag.click(pag.locateOnScreen('./Images/Treasure.png',confidence=treasureconfidence))
-    return
+    if pag.locateAllOnScreen('./Images/TreasureLeft.png',confidence=treasureconfidence) is not None:
+        pag.click(pag.locateOnScreen('./Images/TreasureLeft.png', confidence=treasureconfidence))
+        return
+    if pag.locateAllOnScreen('./Images/TreasureMid.png',confidence=treasureconfidence) is not None:
+        pag.click(pag.locateOnScreen('./Images/TreasureMid.png', confidence=treasureconfidence))
+        return
+    if pag.locateAllOnScreen('./Images/TreasureRight.png',confidence=treasureconfidence) is not None:
+        pag.click(pag.locateOnScreen('./Images/TreasureRight.png', confidence=treasureconfidence))
+        return
+
 
 def clickusekey():
     pag.click(pag.locateOnScreen('./Images/UseKey.png',confidence=confidence))
@@ -257,6 +260,27 @@ def clickopen():
 def clickyes():
     pag.click(pag.locateOnScreen('./Images/Yes.png',confidence=confidence))
     return
+
+#Common waiting games
+def waitforpaintings():
+    while pag.locateOnScreen('./Images/ChoosePainting.png',confidence=confidence) is None \
+            and pag.locateOnScreen('./Images/Portal.png',confidence=confidence) is None \
+            and pag.locateOnScreen('./Images/Master.png',confidence=confidence) is None:
+        if debug2on:
+            print('Waiting for paintings to come up again')
+            print('Choose painting location: ')
+            pag.locateOnScreen('./Images/ChoosePainting.png', confidence=confidence)
+            print('Portal Location: ')
+            pag.locateOnScreen('./Images/Portal.png', confidence=confidence)
+            print('Master location: ')
+            pag.locateOnScreen('./Images/Master.png', confidence=confidence)
+        if pag.locateOnScreen('./Images/Close.png',confidence=confidence) is not None:
+            clickclose()
+            time.sleep(1)
+            if pag.locateOnScreen('./Images/Close.png', confidence=confidence) is not None:
+                clickclose()
+            break
+        time.sleep(2)
 
 #Starting Labs
 
@@ -290,7 +314,8 @@ def main():
     priority = None
 
     #need to get the paintings priority on screen
-    pIndex=1
+    waitforpaintings()
+
     for pIndex in pList:
         try:
             if pag.locateOnScreen(pIndex,confidence=confidence) is not None:
