@@ -16,6 +16,7 @@ labenterconfidence=0.7
 clickinterval = 1
 useparty2 = True
 runonce = False
+instantbattle = True
 imageDir = './Images/'
 treasure = imageDir + 'Treasure.png'
 exploration = imageDir + 'Exploration.png'
@@ -77,10 +78,6 @@ def treasureclick2():
             if debug2on: print('Need to use a key')
             clickusekey()
         if debug2on: print('Clicking open')
-        while pag.locateOnScreen('./Images/Open.png',confidence=confidence) is None:
-            time.sleep(2)
-        clickopen()
-    if debug2on: print('Moving on')
     time.sleep(1)
     clickmoveon()
     return
@@ -110,6 +107,13 @@ def explorationclick(box):
 
 def battleclick(box):
     pag.click(pag.center(box),clicks=2,interval=clickinterval)
+    if instantbattle:
+        waitforinstantbattle()
+        clickinstantbattle()
+        waitforbeginbattle()
+        clickbeginbattle()
+        battleclick3()
+        return
     waitforenter()
     if debug2on: print('Clicking Enter')
     clickenter()
@@ -152,6 +156,10 @@ def battleclick2():
     if pag.locateOnScreen('./Images/OK.png',confidence=confidence) is not None:
         if debug2on: print('Found the OK button')
         clickok()
+    battleclick3()
+    return
+
+def battleclick3():
     while pag.locateOnScreen('./Images/SKIP.png',confidence=confidence) is None:
         if debug2on: print('Waiting for combat to finish')
         time.sleep(2)
@@ -168,10 +176,16 @@ def masterclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
     if debug2on: print('Master painting found')
     waitforenter()
+    #waitforinstantbattle()
+    #clickinstantbattle()
+    #waitforenter()
+    #clickenter()
     if debug2on: print('Found the Enter button')
     clickenter()
     if debug2on: print('Starting battleclick2')
     battleclick2()
+    if runonce:
+        quit(1)
     return
 
 def restonclick(box):
@@ -256,6 +270,14 @@ def clickyes():
     pag.click(pag.locateOnScreen('./Images/Yes.png',confidence=confidence))
     return
 
+def clickinstantbattle():
+    pag.click(pag.locateOnScreen('./Images/InstantBattle.png',confidence=confidence))
+    return
+
+def clickbeginbattle():
+    pag.click(pag.locateOnScreen('./Images/BeginBattle.png',confidence=confidence))
+    return
+
 #Common waiting games
 def waitforpaintings():
     while pag.locateOnScreen('./Images/ChoosePainting.png',confidence=confidence) is None \
@@ -292,6 +314,16 @@ def waitformoveon():
         time.sleep(1)
     return
 
+def waitforinstantbattle():
+    while pag.locateOnScreen('./Images/InstantBattle.png', confidence=confidence) is None:
+        time.sleep(1)
+    return
+
+def waitforbeginbattle():
+    while pag.locateOnScreen('./Images/BeginBattle.png', confidence=confidence) is None:
+        time.sleep(1)
+    return
+
 #Starting Labs
 
 def startlab():
@@ -314,11 +346,16 @@ def startlab():
 
 
 def main():
+
     if debug1on: print('Starting Main')
+
     if pag.locateOnScreen('./Images/Lab3.png',confidence=labenterconfidence) \
             or pag.locateOnScreen('./Images/OnLab3.png',confidence=labenterconfidence):
-        if debug1on: print('Starting Lab3')
+
+        if debug1on: print('Starting Lab')
+
         startlab()
+
 
     priority = None
 
