@@ -88,10 +88,10 @@ def explorationclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
     if debug2on: print('Exploration painting found')
     while pag.locateOnScreen('./Images/MoveOn.png',confidence=confidence) is None \
-			and pag.locateOnScreen('./Images/Yes.png',confidence=confidence is None \
+			and pag.locateOnScreen('./Images/Yes.png',confidence=confidence) is None \
 			and pag.locateOnScreen('./Images/ChooseParty.png',confidence=dungeondetailsconfidence) is None \
 			and pag.locateOnScreen('./Images/TreasureLeft.png',confidence=treasureconfidence) is None:
-		time.sleep(1)
+        time.sleep(1)
     if pag.locateOnScreen('./Images/MoveOn.png',confidence=confidence) is not None:
         if debug2on: print('Found Move On')
         clickmoveon()
@@ -99,7 +99,7 @@ def explorationclick(box):
     if pag.locateOnScreen('./Images/Yes.png',confidence=confidence) is not None:
         if debug2on: print('Door found, clicking yes')
         clickyes()
-		time.sleep(6)
+        time.sleep(6)
     if pag.locateOnScreen('./Images/ChooseParty.png',confidence=dungeondetailsconfidence) is not None:
         if debug2on: print('It was a battle screen')
         battleclick2()
