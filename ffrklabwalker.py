@@ -11,7 +11,7 @@ debug3on = True #Debugging for button clicks
 pag.PAUSE = 2.5
 confidence = 0.9
 treasureconfidence = 0.8
-dungeondetailsconfidence=0.65
+dungeondetailsconfidence=0.7
 labenterconfidence=0.7
 clickinterval = 1
 useparty2 = True
@@ -78,6 +78,7 @@ def treasureclick2():
             if debug2on: print('Need to use a key')
             clickusekey()
         if debug2on: print('Clicking open')
+        clickopen()
     time.sleep(1)
     clickmoveon()
     return
@@ -86,7 +87,11 @@ def treasureclick2():
 def explorationclick(box):
     pag.click(pag.center(box), clicks=2, interval=clickinterval)
     if debug2on: print('Exploration painting found')
-    time.sleep(2)
+    while pag.locateOnScreen('./Images/MoveOn.png',confidence=confidence) is None \
+			and pag.locateOnScreen('./Images/Yes.png',confidence=confidence is None \
+			and pag.locateOnScreen('./Images/ChooseParty.png',confidence=dungeondetailsconfidence) is None \
+			and pag.locateOnScreen('./Images/TreasureLeft.png',confidence=treasureconfidence) is None:
+		time.sleep(1)
     if pag.locateOnScreen('./Images/MoveOn.png',confidence=confidence) is not None:
         if debug2on: print('Found Move On')
         clickmoveon()
@@ -94,7 +99,7 @@ def explorationclick(box):
     if pag.locateOnScreen('./Images/Yes.png',confidence=confidence) is not None:
         if debug2on: print('Door found, clicking yes')
         clickyes()
-    time.sleep(6)
+		time.sleep(6)
     if pag.locateOnScreen('./Images/ChooseParty.png',confidence=dungeondetailsconfidence) is not None:
         if debug2on: print('It was a battle screen')
         battleclick2()
